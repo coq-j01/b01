@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+	crossorigin="anonymous">
+
+<title>Hello, world!</title>
+</head>
+<body>
+
+	<div class="container-fluid">
+		<div class="row">
+			<!-- 기존의 <h1>Header</h1> -->
+			<div class="row">
+				<div class="col">
+					<nav class="navbar navbar-expand-lg navbar-light bg-light">
+						<div class="container-fluid">
+							<a class="navbar-brand" href="#">Navbar</a>
+							<button class="navbar-toggler" type="button"
+								data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+								aria-controls="navbarNavAltMarkup" aria-expanded="false"
+								aria-label="Toggle navigation">
+								<span class="navbar-toggler-icon"></span>
+							</button>
+							<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+								<div class="navbar-nav">
+									<a class="nav-link active" aria-current="page" href="#">Home</a>
+									<a class="nav-link" href="#">Features</a> <a class="nav-link"
+										href="#">Pricing</a> <a class="nav-link disabled">Disabled</a>
+								</div>
+							</div>
+						</div>
+					</nav>
+				</div>
+			</div>
+			<!-- header end -->
+			<!-- 기존의 <h1>Header</h1>끝 -->
+
+			<div class="row content">
+				<div class="col">
+					<div class="card">
+						<div class="card-header">Featured</div>
+						<div class="card-body">
+							<div class="input-group mb-3">
+								<span class="input-group-text">BNO</span> <input type="text"
+									name="bno" class="form-control" th:value="${dto.bno}" readonly>
+							</div>
+							<div class="input-group mb-3">
+								<span class="input-group-text">Title</span> <input type="text"
+									name="title" class="form-control" th:value="${dto.title}"
+									readonly>
+							</div>
+
+							<div class="input-group mb-3">
+								<span class="input-group-text">Content</span>
+								<textarea id="content" name="content"
+									class="form-control col-sm-5" rows="5" readonly>[[${dto.content}]]</textarea>
+							</div>
+
+							<div class="input-group mb-3">
+								<span class="input-group-text">Writer</span> <input type="text"
+									name="writer" class="form-control" th:value="${dto.writer}"
+									readonly>
+
+							</div>
+
+							<div class="input-group mb-3">
+								<span class="input-group-text">RegDate</span> <input type="date"
+									name="regDate" class="form-control"
+									th:value="${#temporals.format(dto.regDate, 'yyyy-MM-dd')}"
+									readonly>
+							</div>
+
+							<div class="input-group mb-3">
+								<span class="input-group-text">ModDate</span> <input type="date"
+									name="modDate" class="form-control"
+									th:value="${#temporals.format(dto.modDate, 'yyyy-MM-dd')}"
+									readonly>
+							</div>
+
+							<div class="my-4">
+								<div class="float-end" th:with="user=${#authentication.principal} ">
+									<button th:if="${user != null && user.username == dto.writer }" type="button" class="btn btn-primary">Modify</button>
+									<button type="button" class="btn btn-secondary">List</button>
+								</div>
+							</div>
+
+						<script th:inline="javascript">
+                        	//목록 페이지로 이동하는 이벤트 처리
+                        	document.querySelector(".btn-secondary").addEventListener("click", function(e){
+                            	self.location = "/board/list?"+[[${pageRequestDTO.link}]];
+                        	});
+                            document.querySelector(".btn-primary").addEventListener("click", function(e){
+                            	if (confirm("수정하겠습니까?")) {
+                                	self.location = "/board/modify?bno="+[[${dto.bno}]]+"&"+[[${pageRequestDTO.link}]];
+                            	}
+                            });
+                        </script>
+						</div>
+						<div class="col">
+							<div class="card"
+								th:if="${dto.fileNames != null && dto.fileNames.size() > 0}">
+								<img class="card-img-top" th:each="fileName: ${dto.fileNames}"
+									th:src="|/view/${fileName}|">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-md-12">
+					<div class="my-4 ">
+						<button class="btn btn-info  addReplyBtn">ADD REPLY</button>
+						<button class="btn btn-info  listReplyBtn">List REPLY</button>
+					</div>
+					<ul class="list-group replyList">
+					</ul>
+				</div>
+			</div>
+			<div class="row content">
+				<div class="row mt-3">
+					<div class="col">
+						<ul class="pagination replyPaging">
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal registerModal" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">Register Reply</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div class="input-group mb-3">
+								<span class="input-group-text">Reply Text</span> <input
+									type="text" class="form-control replyText">
+							</div>
+							<div class="input-group mb-3">
+								<span class="input-group-text">Replyer</span> <input type="text"
+									class="form-control replyer" th:value="${#authentication.principal.username}" readonly>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary registerBtn">Register</button>
+							<button type="button"
+								class="btn btn-outline-dark closeRegisterBtn">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- end regist modal -->
+			<div class="modal modifyModal" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title replyHeader"></h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div class="input-group mb-3">
+								<span class="input-group-text">Reply Text</span> <input
+									type="text" class="form-control modifyText">
+							</div>
+						</div>
+						<!-- 해당 댓글 작성자가 아니면 modify, delete 버튼을 안 띄우기 -->
+						<div class="modal-footer" th:with="user=${#authentication.principal}">
+							<button type="button" class="btn btn-info modifyBtn">Modify</button>
+							<button type="button" class="btn btn-danger removeBtn">Remove</button>
+							<button type="button" class="btn btn-outline-dark closeModifyBtn">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--modifyModal -->
+
+			<div class="row footer">
+				<!--<h1>Footer</h1>-->
+
+				<div class="row   fixed-bottom" style="z-index: -100">
+					<footer class="py-1 my-1 ">
+						<p class="text-center text-muted">Footer</p>
+					</footer>
+				</div>
+
+			</div>
+		</div>
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js">
+	</script>
+
+		<script src="https://code.jquery.com/jquery-1.12.4.min.js">
+	</script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		const auth = [[${#authentication.principal}]];
+		const error = [[${error}]];
+
+	    if (error) {
+	        alert(error);
+	    }
+	    
+	    //csrf 초기화
+	    axios.defaults.withCredentials = true;
+		axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
+		axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
+		
+		const bno = [[${dto.bno}]];
+		let replyPageNum=1;
+	   	//댓글 목록 출력 사이즈 고정
+	   const size = 10;
+	   const printReplies = function(page){
+		   getList(bno, page, size).then(response => {
+	            //댓글 목록 출력
+	        	printList(response.data.dtoList);
+	            
+	    		//댓글 페이지네이션 출력
+	    		printPageNavs(response.data);
+	    		
+	        }).catch(e => {
+	        	console.error(e);
+	        }) 
+	   }     
+	   
+	   async function getList(bno, page, size) {
+	            console.log("step1");
+	            //const result = axios.get(`/replies/list/${bno}?page=${page}&size=${size}`);
+	            const result = axios.get(`/replies/list/${bno}`, {params : {page, size}});
+	            
+	            console.log("step2");
+	            return result;
+	        }
+	    	
+	    	const printList = function(dtoList){
+				let html = "";
+	            
+	            //1. 출력할 댓글 목록을 html 구성한다 
+	            for (const dto of dtoList) {
+	            	html += `<li class="list-group-item d-flex replyItem " data-rno="${dto.rno}">
+	                <span class="col-2">${dto.rno}</span>
+	                <span class="col-6">${dto.replyText}</span>
+	                <span class="col-2">${dto.replyer}</span>
+	                <span class="col-2">${dto.regDate}</span>
+	    	        </li>`;            
+	            }
+	    		console.log(html);
+	    		
+	    		//2. 댓글 목록을 출력하기 구성된 html을 화면의 특정 위치에 출력하면 됨 
+	    		$(".replyList").html(html);
+	    		//document.querySelector(".replyList").innerHtml = html;
+	    	}
+	    	
+	    	const printPageNavs = function(data){
+	    		//3. 댓글 페이지 네비게이션 html 구성한다
+	    		let navHtml = "";
+	    		if (data.prev) {
+	    			navHtml += `<li class="page-item"><a class="page-link" data-page-num="${data.start - 1}">PREV</a></li>`;
+	    		}
+	    		for (let i=data.start;i<=data.end;i++) {
+	    			navHtml += `<li class="page-item ${data.page == i ? 'active' : ''}"><a class="page-link" data-page-num ="${i}">${i}</a></li>`;
+	    		}
+	    		if (data.next) {
+	    			navHtml += `<li class="page-item"><a class="page-link" data-page-num="${data.end + 1}">NEXT</a></li>`;
+	    		}
+	    		replyPageNum = data.page;
+	    		
+	    		//4. 댓글 페이지 네비게이션 html을 화면의 특정 위치에 출력하면 됨 
+	    		$(".replyPaging").html(navHtml);
+	    	}
+	    	$(".replyPaging").on("click", ".page-link", function(e) {
+
+	            e.preventDefault();
+	            e.stopPropagation();
+
+	            const page = $(this).data("pageNum");
+
+	            console.log("클릭한 페이지:", page);
+
+	            printReplies(page);
+	        });
+	        printReplies(1);
+	        
+	        //bootstrap 라이브러리로 registerModal 객체 생성
+	        //const registerModal = new bootstrap.Modal($(".registerModal").get(0));
+	        const registerModal = new bootstrap.Modal(document.querySelector(".registerModal"));
+	        //댓글 추가 버튼 클릭 시 registerModal 모달 출력
+	        $(".addReplyBtn").on("click",function(e){
+	        	e.preventDefault();
+	            e.stopPropagation();
+	        	registerModal.show();
+	        	$(".replyText").focus();
+	        });
+	        //대화 상자에서 닫기 버튼 클릭 시 모달 닫기
+	        $(".closeRegisterBtn").on("click",function(e){
+	        	e.preventDefault();
+	            e.stopPropagation();
+	        	registerModal.hide();
+	        });
+	        
+	        const addReply = async function (replyObj) {
+	            const response = await axios.post("/replies/", replyObj);
+	            
+	            return response.data;
+	        }
+	        
+	        //댓글 등록 후 모달 창 닫기
+	        $(".registerBtn").on("click",function(e){
+	        	e.preventDefault();
+	            e.stopPropagation();
+	            const replyText = $(".replyText").val().trim();
+	            const replyer = $(".replyer").val().trim();
+	            
+	            if(replyText === ""){
+	            	alert("댓글은 필수 입력입니다.");
+	            	$(".replyText").focus();
+	            	return false;
+	            }
+	            if(replyer === ""){
+	            	alert("작성자는 필수 입력입니다.");
+	            	$(".replyer").focus();
+	            	return false;
+	            }   
+	            
+	            addReply({bno,replyText,replyer}).then(result=>{
+	            	alert("댓글 등록 성공")
+	            	registerModal.hide();
+	            	//입력 상자 값 초기화
+	            	$(".replyText").val("");
+		            $(".replyer").val("");
+		            //새 댓글 등록 시 댓글 페이지 1로 이동
+		            printReplies(1);
+	            }).catch(e=>{
+	            	alert("Exception "+e)
+	            });
+	        });
+	        //댓글 조회
+	        async function getReply(rno) {
+	        	const response = await axios.get(`/replies/${rno}`);
+	            return response.data;
+	        }
+	        
+	        //댓글 수정
+	        async function modifyReply(replyObj){
+	        	console.log("수정 요청 데이터:", replyObj);
+	        	const response = await axios.put(`/replies/${replyObj.rno}`,replyObj)
+	        	console.log("수정 응답:", response);
+	        	return response.data;
+	        }
+	        
+	        //댓글 삭제
+	        async function deleteReply(rno){
+	        	const reponse = await axios.delete(`/replies/${rno}`);
+	        	return reponse.data;
+	        }
+	        
+	        let modifyReplyObj;
+	        // 댓글 조회 모달 띄우기
+	        const modifyModal = new bootstrap.Modal(document.querySelector(".modifyModal"));
+	        $(".replyList").on("click",".replyItem",function(e){
+	        	e.preventDefault();
+	            e.stopPropagation();
+	            const rno = $(this).data("rno");
+	            console.log("rno = "+rno);
+	            //댓글 조회 호출
+	            getReply(rno).then(result=>{
+	            	//선택한 댓글 데이터 저장
+	            	modifyReplyObj = result;
+	            	//작성자와 사용자가 같은 경우만 modal창 띄우도록 설정
+	            	if(auth != null && auth.username == result.replyer){
+	            		modifyModal.show();
+			            console.log(result);
+			         	// 댓글 내용
+			            $(".modifyText").val(result.replyText);
+			            // 댓글 작성자
+			            $(".modifyReplyer").val(result.replyer);
+			        	$(".modifyText").focus();
+	            	}
+	            })
+	        });
+	        
+	        //대화 상자에서 닫기 버튼 클릭 시 모달 닫기
+	        $(".closeModifyBtn").on("click",function(e){
+	        	e.preventDefault();
+	            e.stopPropagation();
+	            modifyModal.hide();
+	        });
+	        //댓글 수정 완료 후 모달 창 닫기 -> 이때, 클래스보단 id설정 후 아이디를 가져오는 것이 더 좋음
+	         $(".modifyBtn").on("click",function(e){ //클래스는 여러개고 id는 하나라 더 좋음
+	        	e.preventDefault();
+	            e.stopPropagation();
+	            const modifyText = $(".modifyText").val().trim();
+	            
+	            if(modifyText === ""){
+	            	alert("댓글은 필수 입력입니다.");
+	            	$(".modifyText").focus();
+	            	return false;
+	            }
+	            modifyReply({
+	            	rno : modifyReplyObj.rno,
+	            	bno : modifyReplyObj.bno,
+	            	replyText : modifyText,
+	            	replyer : modifyReplyObj.replyer}).then(result=>{
+	            	alert("댓글 수정 성공")
+	            	modifyModal.hide();
+		            //원래 페이지로 이동
+	            	printReplies(replyPageNum);
+	            }).catch(e=>{
+	            	alert("Exception "+e)
+	            });
+	        });
+	        //댓글 삭제 후 모달 창 닫기
+	        $(".removeBtn").on("click",function(e){
+	        	e.preventDefault();
+	            e.stopPropagation();
+	            if(!confirm("정말 이 댓글을 삭제하시겠습니까?")){
+	            	return;
+	            }
+	            deleteReply(modifyReplyObj.rno).then(result=>{
+	            	alert("댓글 삭제 성공")
+	            	modifyModal.hide();
+		            //원래 페이지로 이동
+	            	printReplies(replyPageNum);
+	            }).catch(e=>{
+	            	alert("Exception "+e)
+	            });
+	        });
+ 
+	        const autoReplyPage = function(){
+            	//현재 페이지 번호가 1일 경우 5초에 한 번씩 댓글 목록 출력
+            	//다른 사람이 등록한 댓글 출력을 위함
+            	console.log(replyPageNum);
+            	if(replyPageNum ==1){
+            		printReplies(1);
+            	}
+            }
+            setInterval(autoReplyPage, 5000);	     
+	});        
+	
+	</script>
+</body>
+</html>
+
