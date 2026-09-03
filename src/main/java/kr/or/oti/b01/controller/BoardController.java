@@ -39,8 +39,12 @@ public class BoardController {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/read")
 	public void read(long bno, PageRequestDTO pageRequestDTO, Model model) {
+		BoardDTO boardDTO = boardservice.get(bno);
+		log.info("boardDTO >>> {}", boardDTO);
+	    log.info("fileNames >>> {}", boardDTO.getFileNames());
+	    log.info("imageUrls >>> {}", boardDTO.getImageUrls());
 		// JSP를 출력할 수 있게 dto 설정함
-		model.addAttribute("dto", boardservice.get(bno));
+		model.addAttribute("dto", boardDTO);
 	}
 
 	@GetMapping("/modify")

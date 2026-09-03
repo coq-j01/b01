@@ -1,6 +1,7 @@
 package kr.or.oti.b01.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -17,6 +18,7 @@ import kr.or.oti.b01.dto.BoardListReplyCountDTO;
 import kr.or.oti.b01.dto.PageRequestDTO;
 import kr.or.oti.b01.dto.PageResponseDTO;
 import kr.or.oti.b01.repository.BoardRepository;
+import kr.or.oti.b01.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class BoardServiceImpl implements BoardService {
 	private final BoardRepository boardRepository;
 	private final ModelMapper mapper;
+	
+	private final S3Uploader s3Uploader;
 
 	public void register(BoardDTO boardDTO) {
 		//boardRepository.save(mapper.map(boardDTO, Board.class));
@@ -72,6 +76,17 @@ public class BoardServiceImpl implements BoardService {
 		int total = (int) page.getTotalElements();
 
 		PageResponseDTO<BoardListAllDTO> result = new PageResponseDTO<>(pageRequestDTO, page.getContent(), total);
+		result.getDtoList().forEach(dto ->{
+			if(dto.getBoardImages() != null) {
+				dto.getBoardImages().forEach(boardimage ->{
+					String imageUrl = s3Uploader.getS3URL(boardimage.getFullName());
+					boardimage.setImageUrl(imageUrl);
+					System.out.println("s3url = "+imageUrl);
+				});
+			}else {
+				System.out.println("boardimage가 비었음");
+			}
+		});
 
 		return result;
 	}
@@ -79,17 +94,37 @@ public class BoardServiceImpl implements BoardService {
 	public BoardDTO get(long bno) {
 		Board board = boardRepository.findByIdWithImages(bno).orElseThrow();
 		//return mapper.map(boardRepository.findByIdWithImages(bno), BoardDTO.class);
-		return entityToDto(board);
+		BoardDTO boardDTO = entityToDto(board);
+		List<String> imgurls = boardDTO.getFileNames().stream().map(filename -> s3Uploader.getS3URL(filename)
+		).collect(Collectors.toList());
+		boardDTO.setImageUrls(imgurls);
+		return boardDTO;
 	}
 
 	public void remove(long bno) {
+		Board board = boardRepository.findByIdWithImages(bno).orElseThrow();
 		boardRepository.deleteById(bno);
+		board.getImageSet().forEach(image -> {
+			String deleteFileName =
+	                image.getUuid() + "_" + image.getFilename();
+
+	        s3Uploader.removeS3File(deleteFileName);
+		});
 	}
 
 	public void modify(BoardDTO boardDTO) {
 		Board board = boardRepository.findByIdWithImages(boardDTO.getBno()).orElseThrow();
 
 		board.change(boardDTO.getTitle(),boardDTO.getContent());
+		
+		// 1. 기존 이미지 S3에서 삭제
+	    board.getImageSet().forEach(image -> {
+
+	        String oldFileName =
+	                image.getUuid() + "_" + image.getFilename();
+
+	        s3Uploader.removeS3File(oldFileName);
+	    });
 
 		// 기존 이미지 삭제
 	    board.clearImages();

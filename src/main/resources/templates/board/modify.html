@@ -110,15 +110,19 @@
 				<div class="col ">
 					<div class="container-fluid d-flex uploadResult"
 						style="flex-wrap: wrap;">
-						<th:block th:each="fileName:${dto.fileNames}">
+						<th:block th:each="fileName, stat : ${dto.fileNames}">
 							<div class="card col-4" th:with="arr = ${fileName.split('_')}">
 								<div class="card-header d-flex justify-content-center">
 									[[${arr[1]}]]
 									<button class="btn-sm btn-danger"
-										th:onclick="removeFile([[${fileName}]], this)">X</button>
+										th:onclick="removeFile('${fileName}', this)">X</button>
 								</div>
 								<div class="card-body">
-									<img th:src="|/view/s_${fileName}|" th:data-src="${fileName}">
+									<img th:src="${dto.imageUrls[stat.index]}" th:data-src="${fileName}"
+										style="
+                                		width: 150px;
+                                		height: 150px;
+                                		object-fit: cover;">
 								</div>
 							</div>
 							<!-- card -->
@@ -162,8 +166,10 @@
 
 		</div>
 	</div>
+	<!-- Bootstrap -->
 	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js">
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+		integrity="..." crossorigin="anonymous">
 	</script>
 
 	<script src="https://code.jquery.com/jquery-1.12.4.min.js">
@@ -255,12 +261,16 @@
                       	//파일 삭제 함수
                       	async function removeFileToServer(filename){
                       		console.log("delete filename : " + filename);
-                      		const response = await axios.delete(`/remove/${filename}`);
+                      		const response = await axios.delete("/remove", {
+                      		    params: {
+                      		        filename: filename
+                      		    }
+                      		});
                       		return response.data;
                       		
                       	}
                       	//파일 삭제 화면에서만 실행
-                      	function removeFile(filename,obj){
+                      	function removeFile(filename, obj){
                       		console.log(filename);
                       		 // 삭제할 파일명 기억
                       	    removeFiles.push(filename);
@@ -282,14 +292,19 @@
 
                       	                <button type="button"
                       	                        class="btn-sm btn-danger"
-                      	                        onclick="removeFile('${fileObj.realFilename}', this)"> <!--ONCLICK은 분리해주는게 좋음-->
+                      	                        onclick="removeFile('${fileObj.uuid}_${fileObj.filename}', this)"> <!--ONCLICK은 분리해주는게 좋음-->
                       	                    X
                       	                </button>
                       	            </div>
 
                       	            <div class="card-body">
-                      	                <img src="/view/${fileObj.link}"
-                      	                     data-src="${fileObj.realFilename}">
+                      	                <img src="${fileObj.realFilename}"
+                                            data-src="${fileObj.uuid}_${fileObj.filename}"
+                                            style="
+                                                  width: 150px;
+                                                  height: 150px;
+                                                  object-fit: cover;
+                                            ">
                       	            </div>
 
                       	        </div>

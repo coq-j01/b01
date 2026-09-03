@@ -34,4 +34,7 @@ public class BoardDTO {
 	
 	//첨부파일 이름
 	private List<String> fileNames;
+	
+	// 화면 출력용 S3 URL
+    private List<String> imageUrls;
 }

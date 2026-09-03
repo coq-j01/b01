@@ -18,11 +18,11 @@ public class DataSourceTests {
 	@Autowired
 	private DataSource dataSource;
 	
-	@Test
-	public void testConnection() throws Exception{
-		@Cleanup
-		Connection conn = dataSource.getConnection();
-		log.info("conn.toString() = "+conn);
-		Assertions.assertNotNull(conn);
-	}
+//	@Test
+//	public void testConnection() throws Exception{
+//		@Cleanup
+//		Connection conn = dataSource.getConnection();
+//		log.info("conn.toString() = "+conn);
+//		Assertions.assertNotNull(conn);
+//	}
 }

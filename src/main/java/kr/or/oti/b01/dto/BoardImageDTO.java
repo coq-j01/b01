@@ -15,6 +15,9 @@ public class BoardImageDTO {
 	private String filename;
 	private int ord;
 	
+	// S3 이미지 URL
+    private String imageUrl;
+	
 	public String getFullName() {
 		return this.uuid+"_"+this.filename;
 	}

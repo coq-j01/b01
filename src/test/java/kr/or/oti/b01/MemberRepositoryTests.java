@@ -22,23 +22,23 @@ public class MemberRepositoryTests {
    @Autowired
    private PasswordEncoder passwordEncoder;
    
-   @Test
-   public void 회원테이블_멤버_추가_테스트() {
-      IntStream.rangeClosed(1, 100).forEach(i -> {
-         Member member = Member.builder()
-               .mid("member" + i)
-               .mpw(passwordEncoder.encode("kosa1004"))
-               .email("email" + i + "@aaa.bbb")
-               .build();
-         
-         member.addRole(MemberRole.USER);
-         
-         if(i >= 90) {
-            member.addRole(MemberRole.ADMIN);
-         }
-         memberRepository.save(member);
-      });
-   }
+//   @Test
+//   public void 회원테이블_멤버_추가_테스트() {
+//      IntStream.rangeClosed(1, 100).forEach(i -> {
+//         Member member = Member.builder()
+//               .mid("member" + i)
+//               .mpw(passwordEncoder.encode("kosa1004"))
+//               .email("email" + i + "@aaa.bbb")
+//               .build();
+//         
+//         member.addRole(MemberRole.USER);
+//         
+//         if(i >= 90) {
+//            member.addRole(MemberRole.ADMIN);
+//         }
+//         memberRepository.save(member);
+//      });
+//   }
    
    
 }

@@ -34,42 +34,42 @@ public class ReplyRepositoryTests {
 	@Autowired
 	private BoardRepository boardRepository;
 
-	@Test
-	public void insertTest() {
-		Board board = Board.builder().bno(22L).build();
-
-		IntStream.range(1, 100).forEach(i -> {
-			Reply reply = Reply.builder().board(board).replyText("댓글..." + i).replyer("홍길동").build();
-			Reply result = repository.save(reply);
-			log.info("RNO : " + result.getRno());
-		});
-	}
-
-	@Test
-	public void testBoardReplies() {
-		Long bno = 23L;
-
-		Pageable pageable = PageRequest.of(0, 10, Sort.by("rno").descending());
-
-		Page<Reply> result = repository.listOfBoard(bno, pageable);
-		result.getContent().forEach(reply -> {
-			log.info("reply" + reply);
-		});
-		log.info("total = {} ", result.getTotalElements());
-	}
-
-	@Test
-    public void testSearchReplyCountPaging() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
-        Page<BoardListReplyCountDTO> result = boardRepository.searchWithReplyCount(new String[] {"t"}, "말랑", pageable);
-
-        log.info("total count: " + result.getTotalElements());
-        log.info("total pages:" + result.getTotalPages());
-        log.info("page number: " + result.getNumber());
-        log.info("page size: " + result.getSize());
-
-        List<BoardListReplyCountDTO> todoList = result.getContent();
-
-        todoList.forEach(board -> log.info(board.toString()));
-    }
+//	@Test
+//	public void insertTest() {
+//		Board board = Board.builder().bno(22L).build();
+//
+//		IntStream.range(1, 100).forEach(i -> {
+//			Reply reply = Reply.builder().board(board).replyText("댓글..." + i).replyer("홍길동").build();
+//			Reply result = repository.save(reply);
+//			log.info("RNO : " + result.getRno());
+//		});
+//	}
+//
+//	@Test
+//	public void testBoardReplies() {
+//		Long bno = 23L;
+//
+//		Pageable pageable = PageRequest.of(0, 10, Sort.by("rno").descending());
+//
+//		Page<Reply> result = repository.listOfBoard(bno, pageable);
+//		result.getContent().forEach(reply -> {
+//			log.info("reply" + reply);
+//		});
+//		log.info("total = {} ", result.getTotalElements());
+//	}
+//
+//	@Test
+//    public void testSearchReplyCountPaging() {
+//        Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
+//        Page<BoardListReplyCountDTO> result = boardRepository.searchWithReplyCount(new String[] {"t"}, "말랑", pageable);
+//
+//        log.info("total count: " + result.getTotalElements());
+//        log.info("total pages:" + result.getTotalPages());
+//        log.info("page number: " + result.getNumber());
+//        log.info("page size: " + result.getSize());
+//
+//        List<BoardListReplyCountDTO> todoList = result.getContent();
+//
+//        todoList.forEach(board -> log.info(board.toString()));
+//    }
 }

@@ -108,9 +108,9 @@
 						</div>
 						<div class="col">
 							<div class="card"
-								th:if="${dto.fileNames != null && dto.fileNames.size() > 0}">
-								<img class="card-img-top" th:each="fileName: ${dto.fileNames}"
-									th:src="|/view/${fileName}|">
+								th:if="${dto.imageUrls != null && dto.imageUrls.size() > 0}">
+								<img class="card-img-top" th:each="imageUrl: ${dto.imageUrls}"
+									th:src="${imageUrl}">
 							</div>
 						</div>
 					</div>
