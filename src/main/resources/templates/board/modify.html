@@ -176,187 +176,187 @@
 	</script>
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-	<script th:inline="javascript">
-                    	const errors=[[${errors}]] 
-                		console.log(errors);
-                		let msg = "";
-                		if(errors){
-                			for (let i =0; i<errors.length; i++) {
-                    			msg += `${errors[i].field}은(는) ${errors[i].code} \n`
-                    		}
-                			alert(msg);                              	
-                		}
+<script th:inline="javascript">
+      	const errors=[[${errors}]] 
+  		console.log(errors);
+  		let msg = "";
+  		if(errors){
+  			for (let i =0; i<errors.length; i++) {
+      			msg += `${errors[i].field}은(는) ${errors[i].code} \n`
+      		}
+  			alert(msg);                              	
+  		}
 
-                        const formObj = document.querySelector("#f1")
-                        document.querySelector(".removeBtn").addEventListener("click",function(e) {
+          const formObj = document.querySelector("#f1")
+          document.querySelector(".removeBtn").addEventListener("click",function(e) {
 
-                            e.preventDefault()
-                            e.stopPropagation()
-                            if (confirm("삭제하겠습니까?")) {
-	                            formObj.action ="/board/remove"
-	                            formObj.method ="post"
-	
-	                            formObj.submit()
-                            }
-                        },false);
+              e.preventDefault()
+              e.stopPropagation()
+              if (confirm("삭제하겠습니까?")) {
+               formObj.action ="/board/remove"
+               formObj.method ="post"
+
+               formObj.submit()
+              }
+          },false);
 
 
-                        $(".modifyBtn").on("click",function(e) {
-                        	 console.log("modify 클릭!!!");
+          $(".modifyBtn").on("click",function(e) {
+          	 console.log("modify 클릭!!!");
 
-                        	e.preventDefault();
-                            e.stopPropagation();
+          	e.preventDefault();
+              e.stopPropagation();
 
-                            const uploadFiles =
-                                document.querySelector(".uploadResult").querySelectorAll("img");
+              const uploadFiles =
+                  document.querySelector(".uploadResult").querySelectorAll("img");
 
-                            let str = "";
+              let str = "";
 
-                            for (let i = 0; i < uploadFiles.length; i++) {
+              for (let i = 0; i < uploadFiles.length; i++) {
 
-                                const uploadFile = uploadFiles[i];
+                  const uploadFile = uploadFiles[i];
 
-                                const imgLink = uploadFile.getAttribute("data-src");
+                  const imgLink = uploadFile.getAttribute("data-src");
 
-                                str += `
-                                    <input type="hidden"
-                                           name="fileNames"
-                                           value="${imgLink}">
-                                `;
-                            }
+                  str += `
+                      <input type="hidden"
+                             name="fileNames"
+                             value="${imgLink}">
+                  `;
+              }
 
-                            document.querySelector(".uploadHidden").innerHTML = str;
+              document.querySelector(".uploadHidden").innerHTML = str;
 
-                            if (confirm("수정하겠습니까?")) {
-                            	
-                            	 // X 눌러둔 파일들을 이때 실제 삭제
-                            	let promises = [];
+              if (confirm("수정하겠습니까?")) {
+              	
+              	 // X 눌러둔 파일들을 이때 실제 삭제
+              	let promises = [];
 
-                                for (let i = 0; i < removeFiles.length; i++) {
-                                    promises.push(removeFileToServer(removeFiles[i]));
-                                }
-								//삭제할 파일이 여러 개 일 수 있어 promise.all로 실행
-                                Promise.all(promises).then(() => {
+                  for (let i = 0; i < removeFiles.length; i++) {
+                      promises.push(removeFileToServer(removeFiles[i]));
+                  }
+//삭제할 파일이 여러 개 일 수 있어 promise.all로 실행
+                  Promise.all(promises).then(() => {
 
-                                	//실행순서 보장을 위해 then안에서 form제출
-                                    formObj.action = "/board/modify";
-                                    formObj.method = "post";
-                                    formObj.submit();
+                  	//실행순서 보장을 위해 then안에서 form제출
+                      formObj.action = "/board/modify";
+                      formObj.method = "post";
+                      formObj.submit();
 
-                                });
-                            }
-                        });
-                        const removeFiles = [];
-                      //파일 업로드 함수
-                      	async function uploadToServer(formObj){
-                      		console.log("upload to server" + formObj);
-                      		
-                      		const response = await axios.post(`/upload`,formObj,{
-                      			headers:{
-                      				"Content-Type":"multipart/form-data"
-                      			}
-                      		});
-                      		return response.data;
-                      	}
-                      	//파일 삭제 함수
-                      	async function removeFileToServer(filename){
-                      		console.log("delete filename : " + filename);
-                      		const response = await axios.delete("/remove", {
-                      		    params: {
-                      		        filename: filename
-                      		    }
-                      		});
-                      		return response.data;
-                      		
-                      	}
-                      	//파일 삭제 화면에서만 실행
-                      	function removeFile(filename, obj){
-                      		console.log(filename);
-                      		 // 삭제할 파일명 기억
-                      	    removeFiles.push(filename);
+                  });
+              }
+          });
+          const removeFiles = [];
+        //파일 업로드 함수
+        	async function uploadToServer(formObj){
+        		console.log("upload to server" + formObj);
+        		
+        		const response = await axios.post(`/upload`,formObj,{
+        			headers:{
+        				"Content-Type":"multipart/form-data"
+        			}
+        		});
+        		return response.data;
+        	}
+        	//파일 삭제 함수
+        	async function removeFileToServer(filename){
+        		console.log("delete filename : " + filename);
+        		const response = await axios.delete("/remove", {
+        		    params: {
+        		        filename: filename
+        		    }
+        		});
+        		return response.data;
+        		
+        	}
+        	//파일 삭제 화면에서만 실행
+        	function removeFile(filename, obj){
+        		console.log(filename);
+        		 // 삭제할 파일명 기억
+        	    removeFiles.push(filename);
 
-                      	    // 화면에서만 제거
-                      	    const targetDiv = obj.closest(".card");
-                      	    targetDiv.remove();
-                      	}
-                      	const uploadModal = new bootstrap.Modal(document.querySelector(".uploadModal"));
-                      	//첨부 파일 출력
-                      	function showUploadFile(fileObj){
-                      		console.log("fileObj =", fileObj);
+        	    // 화면에서만 제거
+        	    const targetDiv = obj.closest(".card");
+        	    targetDiv.remove();
+        	}
+        	const uploadModal = new bootstrap.Modal(document.querySelector(".uploadModal"));
+        	//첨부 파일 출력
+        	function showUploadFile(fileObj){
+        		console.log("fileObj =", fileObj);
 
-                      	    const str = `
-                      	        <div class="card col-4">
+        	    const str = `
+        	        <div class="card col-4">
 
-                      	            <div class="card-header d-flex justify-content-center">
-                      	                ${fileObj.filename}
+        	            <div class="card-header d-flex justify-content-center">
+        	                ${fileObj.filename}
 
-                      	                <button type="button"
-                      	                        class="btn-sm btn-danger"
-                      	                        onclick="removeFile('${fileObj.uuid}_${fileObj.filename}', this)"> <!--ONCLICK은 분리해주는게 좋음-->
-                      	                    X
-                      	                </button>
-                      	            </div>
+        	                <button type="button"
+        	                        class="btn-sm btn-danger"
+        	                        onclick="removeFile('${fileObj.uuid}_${fileObj.filename}', this)"> <!--ONCLICK은 분리해주는게 좋음-->
+        	                    X
+        	                </button>
+        	            </div>
 
-                      	            <div class="card-body">
-                      	                <img src="${fileObj.realFilename}"
-                                            data-src="${fileObj.uuid}_${fileObj.filename}"
-                                            style="
-                                                  width: 150px;
-                                                  height: 150px;
-                                                  object-fit: cover;
-                                            ">
-                      	            </div>
+        	            <div class="card-body">
+        	                <img src="${fileObj.realFilename}"
+                              data-src="${fileObj.uuid}_${fileObj.filename}"
+                              style="
+                                    width: 150px;
+                                    height: 150px;
+                                    object-fit: cover;
+                              ">
+        	            </div>
 
-                      	        </div>
-                      	    `;
+        	        </div>
+        	    `;
 
-                      	    document.querySelector(".uploadResult").innerHTML += str;
-                      	  }
-                      	//addfile 버튼 설정
-                      	$(".uploadFileBtn").on("click", function(e){
-                      		e.preventDefault();
-            	            e.stopPropagation();
-                      		uploadModal.show();
-                      	})
-                      	$(".closeUploadBtn").on("click",function(e){
-                      		document.querySelector("input[name='files']").value = "";
-                      		uploadModal.hide();
-                      	})
-                      	//파일 업로드 버튼
-                      	$(".uploadBtn").on("click", function(e){
-                      		 e.preventDefault();
-                      	    e.stopPropagation();
+        	    document.querySelector(".uploadResult").innerHTML += str;
+        	  }
+        	//addfile 버튼 설정
+        	$(".uploadFileBtn").on("click", function(e){
+        		e.preventDefault();
+           e.stopPropagation();
+        		uploadModal.show();
+        	})
+        	$(".closeUploadBtn").on("click",function(e){
+        		document.querySelector("input[name='files']").value = "";
+        		uploadModal.hide();
+        	})
+        	//파일 업로드 버튼
+        	$(".uploadBtn").on("click", function(e){
+        		 e.preventDefault();
+        	    e.stopPropagation();
 
-                      	    const formObj = new FormData();
+        	    const formObj = new FormData();
 
-                      	    const fileInput = document.querySelector("input[name='files']");
-                      	    const files = fileInput.files;
+        	    const fileInput = document.querySelector("input[name='files']");
+        	    const files = fileInput.files;
 
-                      	    for (let i = 0; i < files.length; i++) {
-                      	        formObj.append("files", files[i]);
-                      	    }
+        	    for (let i = 0; i < files.length; i++) {
+        	        formObj.append("files", files[i]);
+        	    }
 
-                      	    uploadToServer(formObj)
-                      	        .then(result => {
+        	    uploadToServer(formObj)
+        	        .then(result => {
 
-                      	            console.log("result =", result);
+        	            console.log("result =", result);
 
-                      	            if (result && result.length > 0) {
-                      	                result.forEach(fileObj => {
-                      	                    showUploadFile(fileObj);
-                      	                });
-                      	            }
+        	            if (result && result.length > 0) {
+        	                result.forEach(fileObj => {
+        	                    showUploadFile(fileObj);
+        	                });
+        	            }
 
-                      	            fileInput.value = "";
-                      	            uploadModal.hide();
+        	            fileInput.value = "";
+        	            uploadModal.hide();
 
-                      	        })
-                      	        .catch(e => {
-                      	            console.error(e);
-                      	            uploadModal.hide();
-                      	        });
-                      	});
-           </script>
+        	        })
+        	        .catch(e => {
+        	            console.error(e);
+        	            uploadModal.hide();
+        	        });
+        	});
+     </script>
 
 
 </body>
