@@ -118,13 +118,13 @@ public class BoardServiceImpl implements BoardService {
 		board.change(boardDTO.getTitle(),boardDTO.getContent());
 		
 		// 1. 기존 이미지 S3에서 삭제
-	    board.getImageSet().forEach(image -> {
-
-	        String oldFileName =
-	                image.getUuid() + "_" + image.getFilename();
-
-	        s3Uploader.removeS3File(oldFileName);
-	    });
+//	    board.getImageSet().forEach(image -> {
+//
+//	        String oldFileName =
+//	                image.getUuid() + "_" + image.getFilename();
+//
+//	        s3Uploader.removeS3File(oldFileName);
+//	    }); //당장은 X 나중에 db와 s3파일의 삭제 타이밍 맞추도록 수정하기
 
 		// 기존 이미지 삭제
 	    board.clearImages();
